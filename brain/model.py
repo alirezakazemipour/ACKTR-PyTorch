@@ -21,7 +21,7 @@ class CNNModel(nn.Module, ABC):
 
         self.fc = nn.Linear(in_features=flatten_size, out_features=256)
         self.value = nn.Linear(in_features=256, out_features=1)
-        self.logits = nn.Linear(in_features=256, out_features=num_actions)
+        self.logits = nn.Linear(in_features=256, out_features=num_actions) # noqa
 
         for layer in self.modules():
             if isinstance(layer, nn.Conv2d):
@@ -49,5 +49,5 @@ class CNNModel(nn.Module, ABC):
         return dist, value
 
     @staticmethod
-    def conv_shape(input, kernel_size, stride, padding=0):
-        return (input + 2 * padding - kernel_size) // stride + 1
+    def conv_shape(x, kernel_size, stride, padding=0):
+        return (x + 2 * padding - kernel_size) // stride + 1
