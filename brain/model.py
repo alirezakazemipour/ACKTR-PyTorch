@@ -1,11 +1,11 @@
 from abc import ABC
 from torch import nn
-import torch.nn.functional as F
+import torch.nn.functional as F # noqa
 from torch.distributions import Categorical
 
 
 class CNNModel(nn.Module, ABC):
-    def __int__(self, input_shape, num_actions):
+    def __init__(self, input_shape, num_actions):
         super(CNNModel, self).__init__()
         c, w, h = input_shape
 
@@ -25,10 +25,10 @@ class CNNModel(nn.Module, ABC):
 
         for layer in self.modules():
             if isinstance(layer, nn.Conv2d):
-                nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
+                nn.init.orthogonal_(layer.weight, gain=nn.init.calculate_gain("relu"))
                 layer.bias.data.zero_()
 
-        nn.init.kaiming_normal_(self.fc.weight, nonlinearity="relu")
+        nn.init.orthogonal_(self.fc.weight, 1.)
         self.fc.bias.data.zero_()
         nn.init.xavier_uniform_(self.value.weight)
         self.value.bias.data.zero_()
