@@ -1,4 +1,22 @@
+import os
 import numpy as np
+import random
+import torch
+
+
+def set_random_seeds(seed):
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.random.manual_seed(seed)
+
+
+def init_wandb(online_mode=False):
+    if os.path.exists("api_key.wandb"):
+        with open("api_key.wandb", 'r') as f:
+            os.environ["WANDB_API_KEY"] = f.read()
+            if not online_mode:
+                os.environ["WANDB_MODE"] = "offline"
 
 
 # Calculates if value function is a good predictor of the returns (ev > 1)
