@@ -9,6 +9,7 @@ import psutil
 import sys
 import math
 import wandb
+import torch
 
 
 class Logger:
@@ -34,7 +35,7 @@ class Logger:
         print("params:", self.config)
         sys.stdout.write("\033[0;0m")  # Reset code
 
-        wandb.init(project=self.config["agent_name"],
+        wandb.init(project="ACKTR",  # noqa
                    config=config,
                    job_type="train",
                    name=self.log_dir
@@ -58,7 +59,7 @@ class Logger:
         self.duration = time.time() - self.start_time
 
     def log_iteration(self, *args):
-        iteration, beta, training_logs = args
+        iteration, training_logs = args
 
         if np.isnan(np.mean(training_logs[:-1])):
             raise RuntimeError(f"NN has output NaNs! {training_logs}")
@@ -68,18 +69,17 @@ class Logger:
 
         self.running_training_logs = self.exp_avg(self.running_training_logs, np.array(training_logs))
 
-        if iteration % (self.config["interval"] // 3) == 0:
+        if iteration % (self.config["interval"] // 3 + 1) == 0:
             self.save_params(self.episode, iteration)
 
         metrics = {"Running Episode Reward": self.running_reward,
                    "Running last 10 Reward": self.running_last_10_r,
                    "Max Episode Reward": self.max_episode_rewards,
                    "Episode Length": self.episode_length,
-                   "Running PG Loss": self.running_training_logs[0],
-                   "Running Value Loss": self.running_training_logs[1],
+                   "Running Actor Loss": self.running_training_logs[0],
+                   "Running Critic Loss": self.running_training_logs[1],
                    "Running Entropy": self.running_training_logs[2],
-                   "Running Grad norm": self.running_training_logs[3],
-                   "Running Explained variance": self.running_training_logs[4],
+                   "Running Explained variance": self.running_training_logs[3],
                    "episode": self.episode,
                    "iteration": iteration
                    }
@@ -93,8 +93,6 @@ class Logger:
                   "E_Reward: {:.1f}| "
                   "E_Running_Reward: {:.1f}| "
                   "Iter_Duration: {:.3f}| "
-                  "Mem_size: {}| "
-                  "Beta: {:.1f}| "
                   "{:.1f}/{:.1f} GB RAM| "
                   "Time: {} "
                   .format(iteration,
@@ -102,8 +100,6 @@ class Logger:
                           self.episode_reward,
                           self.running_reward,
                           self.duration,
-                          len(self.brain.memory),
-                          beta,
                           self.to_gb(ram.used),
                           self.to_gb(ram.total),
                           datetime.datetime.now().strftime("%H:%M:%S"),
@@ -136,10 +132,8 @@ class Logger:
                           if not isinstance(self.running_last_10_r, np.ndarray) else self.running_last_10_r[0],
                           "running_training_logs": list(self.running_training_logs)
                           }
-        self.brain.policy.save_weights("Models/" + self.weight_dir + "/weights.h5", save_format="h5")
-        with open("Models/" + self.weight_dir + "/stats.json", "w") as f:
-            f.write(json.dumps(stats_to_write))
-            f.flush()
+        torch.save({"online_model_state_dict": self.brain.model.state_dict()},
+                   "weights/" + self.log_dir + "/params.pth")
 
     # endregion
 
@@ -147,9 +141,8 @@ class Logger:
     def load_weights(self):
         model_dir = glob.glob("Models/*")
         model_dir.sort()
-        self.weight_dir = model_dir[-1].split(os.sep)[-1]
+        self.log_dir = model_dir[-1].split(os.sep)[-1]
 
-        #         self.brain.policy.build([(None, *self.config["state_shape"]), (None, 256), (None, 256)])
         self.brain.policy.load_weights(model_dir[-1] + "/weights.h5")
         with open(model_dir[-1] + "/stats.json", "r") as f:
             stats = json.load(f)

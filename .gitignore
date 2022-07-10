@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 .idea
+api_key.wandb
+wandb
+weights

@@ -14,11 +14,11 @@ if __name__ == '__main__':
     params.update({"n_actions": test_env.action_space.n})
     test_env.close()
     del test_env
-    params.update({"rollout_length": 80 // params["n_workers"]})
+    params.update({"rollout_length": params["batch_size"] // params["n_workers"]})
 
     brain = Brain(**params)
     if not params["do_test"]:
-        logger = Logger(brain)
+        logger = Logger(brain, **params)
 
         if not params["train_from_scratch"]:
             init_iteration, episode = logger.load_weights()
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         total_states = np.zeros(rollout_base_shape + params["state_shape"], dtype=np.uint8)
         total_actions = np.zeros(rollout_base_shape, dtype=np.int32)
         total_rewards = np.zeros(rollout_base_shape)
-        total_dones = np.zeros(rollout_base_shape, dtype=np.bool)
+        total_dones = np.zeros(rollout_base_shape, dtype=bool)
         total_values = np.zeros(rollout_base_shape, dtype=np.float32)
         next_states = np.zeros((rollout_base_shape[0],) + params["state_shape"], dtype=np.uint8)
 

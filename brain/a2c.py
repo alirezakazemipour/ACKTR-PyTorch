@@ -26,17 +26,22 @@ class Brain:
 
     def train(self, states, actions, rewards, dones, values, next_values):
         returns = self.get_returns(rewards, next_values, dones, n=self.config["n_workers"])
-        target_values = np.hstack(values)
+        values = np.hstack(values)
         advs = returns - values
 
-        dist, value = self.model(states)
+        states = from_numpy(states).to(self.device)
+        actions = from_numpy(actions).to(self.device)
+        advs = from_numpy(advs).to(self.device)
+        values_target = from_numpy(values).to(self.device)
+
+        dist, values_pred = self.model(states)
         ent = dist.entropy().mean()
         log_prob = dist.log_prob(actions)
         a_loss = (log_prob * advs).mean()
-        c_loss = self.mse_loss(target_values, value.squeeza(-1))
+        c_loss = self.mse_loss(values_target, values_pred.squeeze(-1))
         total_loss = a_loss + self.config["critic_coeff"] * c_loss - self.config["ent_coeff"] * ent  # noqa
         self.optimize(total_loss)
-        return a_loss.item(), c_loss.numpy(), ent.numpy(), explained_variance(target_values, returns)
+        return a_loss.item(), c_loss.item(), ent.item(), explained_variance(values, returns)
 
     def optimize(self, loss):
         self.optimizer.zero_grad()

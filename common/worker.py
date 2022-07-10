@@ -9,8 +9,6 @@ class Worker(Process):
         self.config = config
         self.env = make_atari(self.config["env_name"], episodic_life=False, seed=self.config["seed"] + self.id)
         self.conn = conn
-        self.reward = 0
-        self.episode_buffer = []
 
     def __str__(self):
         return str(self.id)
@@ -27,9 +25,6 @@ class Worker(Process):
             next_state, reward, done, info = self.env.step(action)
             # self.render()
             self.conn.send((next_state, reward, done))
-            self.episode_buffer.append((state, action, reward, done, value))
             state = next_state
             if done:
-                self.conn.send(self.episode_buffer)
-                self.episode_buffer = []
                 state = self.env.reset()
