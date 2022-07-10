@@ -2,7 +2,7 @@ from .model import CNNModel
 import torch
 from torch import from_numpy
 import numpy as np
-from torch.optim.adam import Adam
+from .kfac import KFAC
 from common import explained_variance
 
 
@@ -12,7 +12,7 @@ class Brain:
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         self.model = CNNModel(self.config["state_shape"], self.config["n_actions"]).to(self.device)
-        self.optimizer = Adam(self.model.parameters(), lr=self.config["lr"])
+        self.optimizer = KFAC(self.model, lr=self.config["lr"])
         self.mse_loss = torch.nn.MSELoss()
 
     def get_actions_and_values(self, state, batch=False):
