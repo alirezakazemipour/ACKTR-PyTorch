@@ -30,12 +30,13 @@ class KFAC(optim.Optimizer):
         self.Tf = Tf
         self.max_lr = max_lr
         self.trust_region = trust_region
-        self._k = 1
+        self._k = 0
         self._aa_hat, self._gg_hat = {}, {}
         self._eig_a, self._Q_a = {}, {}
         self._eig_g, self._Q_g = {}, {}
         self._trainable_layers = []
         self.optim = optim.SGD(self.model.parameters(), lr=lr, momentum=momentum)
+        self.fisher_backprop = False
         self._keep_track_aa_gg()
 
     def _keep_track_aa_gg(self):
@@ -60,33 +61,32 @@ class KFAC(optim.Optimizer):
 
             aa = a.t() @ a / batch_size
 
-            if self._k == 1:  # TODO
+            if self._k == 0:
                 self._aa_hat[layer] = aa.clone()
 
             polyak_avg(aa, self._aa_hat[layer], self.eps)
 
     def _save_gg(self, layer, grad_forwardprop, grad_backprop):  # noqa
-        g = grad_backprop[0]
-        batch_size = g.size(0)
-        if self._k % self.Ts == 0:
-            if isinstance(layer, torch.nn.Conv2d):
-                ow, oh = g.shape[-2:]
-                g = g.transpose_(1, 2).transpose_(2, 3).contiguous()
-                g = g.view(-1, g.size(-1)) * ow * oh
+        if self.fisher_backprop:
+            g = grad_backprop[0]
+            batch_size = g.size(0)
+            if self._k % self.Ts == 0:
+                if isinstance(layer, torch.nn.Conv2d):
+                    ow, oh = g.shape[-2:]
+                    g = g.transpose_(1, 2).transpose_(2, 3).contiguous()
+                    g = g.view(-1, g.size(-1)) * ow * oh
 
-            g *= batch_size
-            gg = g.t() @ (g / batch_size)
+                g *= batch_size
+                gg = g.t() @ (g / batch_size)
 
-            if self._k == 1:
-                self._gg_hat[layer] = gg.clone()
+                if self._k == 0:
+                    self._gg_hat[layer] = gg.clone()
 
-            polyak_avg(gg, self._gg_hat[layer], self.eps)
+                polyak_avg(gg, self._gg_hat[layer], self.eps)
 
     def _update_inverses(self, l):
         self._eig_a[l], self._Q_a[l] = torch.linalg.eigh(self._aa_hat[l], UPLO='U')
         self._eig_g[l], self._Q_g[l] = torch.linalg.eigh(self._gg_hat[l], UPLO='U')
-        # self._eig_a[l], self._Q_a[l] = torch.symeig(self._aa_hat[l], eigenvectors=True)
-        # self._eig_g[l], self._Q_g[l] = torch.symeig(self._gg_hat[l], eigenvectors=True)
         self._eig_a[l] *= (self._eig_a[l] > 1e-6).float()
         self._eig_g[l] *= (self._eig_g[l] > 1e-6).float()
 
@@ -94,10 +94,6 @@ class KFAC(optim.Optimizer):
         if self.weight_decay > 0:
             for p in self.model.parameters():
                 p.grad.data.add_(p.data, self.weight_decay)
-
-        if self._k < 10:
-            self._k += 1
-            return
 
         updates = {}
         for layer in self._trainable_layers:

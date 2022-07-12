@@ -1,6 +1,7 @@
 from .model import CNNModel
 import torch
 from torch import from_numpy
+from torch.distributions import Normal
 import numpy as np
 from .kfac import KFAC
 from common import explained_variance
@@ -37,6 +38,17 @@ class Brain:
         dist, values_pred = self.model(states)
         ent = dist.entropy().mean()
         log_prob = dist.log_prob(actions)
+
+        a_fisher_loss = -log_prob.mean()  # CELoss
+        v_dist = Normal(values_pred.detach(), 1)
+        v_samples = v_dist.sample()
+        c_fisher_loss = -self.mse_loss(v_samples, values_pred)
+        fisher_loss = a_fisher_loss + c_fisher_loss
+        self.optimizer.zero_grad()
+        self.optimizer.fisher_backprop = True
+        fisher_loss.backward(retain_graph=True)
+        self.optimizer.fisher_backprop = False
+
         a_loss = (log_prob * advs).mean()
         c_loss = self.mse_loss(values_target, values_pred.squeeze(-1))
         total_loss = a_loss + self.config["critic_coeff"] * c_loss - self.config["ent_coeff"] * ent  # noqa
