@@ -49,7 +49,7 @@ class Brain:
         fisher_loss.backward(retain_graph=True)
         self.optimizer.fisher_backprop = False
 
-        a_loss = (log_prob * advs).mean()
+        a_loss = -(log_prob * advs).mean()
         c_loss = self.mse_loss(values_target, values_pred.squeeze(-1))
         total_loss = a_loss + self.config["critic_coeff"] * c_loss - self.config["ent_coeff"] * ent  # noqa
         self.optimize(total_loss)

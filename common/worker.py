@@ -7,23 +7,20 @@ class Worker(Process):
         super(Worker, self).__init__()
         self.id = id
         self.config = config
-        self.env = make_atari(self.config["env_name"], episodic_life=False, seed=self.config["seed"] + self.id)
+        self.env = None
         self.conn = conn
 
     def __str__(self):
         return str(self.id)
 
-    def render(self):
-        self.env.render()
-
     def run(self):
+        self.env = make_atari(self.config["env_name"], episodic_life=False, seed=self.config["seed"] + self.id)
         print(f"W{self.id}: started.")
         state = self.env.reset()
         while True:
             self.conn.send(state)
             action, value = self.conn.recv()
             next_state, reward, done, info = self.env.step(action)
-            # self.render()
             self.conn.send((next_state, reward, done))
             state = next_state
             if done:
