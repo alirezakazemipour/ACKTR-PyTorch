@@ -52,15 +52,12 @@ class KFAC(optim.Optimizer):
             a = layer_input[0].data
             batch_size = a.size(0)
             if isinstance(layer, Conv2d):
-                a, spatial_size = img2col(a, layer.kernel_size, layer.stride, layer.padding)
+                a = img2col(a, layer.kernel_size, layer.stride, layer.padding)
 
             if layer.bias is not None:
                 a = torch.cat([a, a.new(a.size(0), 1).fill_(1)], 1)
 
-            # if isinstance(layer, torch.nn.Conv2d):
-            #     a /= spatial_size # FIXME
-
-            aa = a.t() @ (a / batch_size)
+            aa = (a.t() @ a) / batch_size
 
             if self._k == 0:
                 self._aa_hat[layer] = aa.clone()
@@ -75,10 +72,10 @@ class KFAC(optim.Optimizer):
                 if isinstance(layer, Conv2d):
                     ow, oh = ds.shape[-2:]
                     ds = ds.transpose_(1, 2).transpose_(2, 3).contiguous()
-                    ds = ds.view(-1, ds.size(-1))  # FIXME
+                    ds = ds.view(-1, ds.size(-1))
 
-                ds = ds * batch_size
-                gg = ds.t() @ (ds / batch_size / oh / ow) if isinstance(layer, Conv2d) else ds.t() @ (ds / batch_size)
+                ds *= batch_size
+                gg = (ds.t() @ ds) / batch_size / oh / ow if isinstance(layer, Conv2d) else (ds.t() @ ds) / batch_size
 
                 if self._k == 0:
                     self._gg_hat[layer] = gg.clone()
@@ -123,14 +120,14 @@ class KFAC(optim.Optimizer):
 
             updates[layer] = delta_h_hat
 
-        second_taylor_expans_term = 0
+        second_taylor_expan_term = 0
         for layer in self._trainable_layers:
             v = updates[layer]
-            second_taylor_expans_term += (v[0] * layer.weight.grad.data * self.lr * self.lr).sum()
+            second_taylor_expan_term += (v[0] * layer.weight.grad.data * self.lr * self.lr).sum()
             if layer.bias is not None:
-                second_taylor_expans_term += (v[1] * layer.bias.grad.data * self.lr * self.lr).sum()
+                second_taylor_expan_term += (v[1] * layer.bias.grad.data * self.lr * self.lr).sum()
 
-        nu = min(self.max_lr, math.sqrt(2 * self.trust_region / (second_taylor_expans_term + 1e-6)))
+        nu = min(self.max_lr, math.sqrt(2 * self.trust_region / (second_taylor_expan_term + 1e-6)))
 
         for layer in self._trainable_layers:
             v = updates[layer][0]
@@ -159,9 +156,8 @@ def img2col(tensor,
     x = x.unfold(2, kernel_size[0], stride[0])
     x = x.unfold(3, kernel_size[1], stride[1])
     x = x.transpose_(1, 2).transpose_(2, 3).contiguous()
-    spatial_size = x.size(1) * x.size(2)
     x = x.view(-1, x.size(3) * x.size(4) * x.size(5))
-    return x, spatial_size
+    return x
 
 
 def polyak_avg(new, old, tau):  # noqa

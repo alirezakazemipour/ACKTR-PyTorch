@@ -29,12 +29,13 @@ def get_params():
                       "lr": 0.25,
                       "kfac_configs": dict(lr=0.25,
                                            damping=1e-2,
-                                           momuntum=0.9,
+                                           momentum=0.9,
                                            epsilon=0.95,
                                            Ts=1,
                                            Tf=10,
                                            max_lr=1,
-                                           trust_region=0.001
+                                           trust_region=0.001,
+                                           weight_decay=0
                                            ),
                       "batch_size": 640,
                       "gamma": 0.99,

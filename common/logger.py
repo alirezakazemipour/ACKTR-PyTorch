@@ -125,15 +125,16 @@ class Logger:
 
     # region save_params
     def save_params(self, episode, iteration):
-        stats_to_write = {"iteration": iteration,
-                          "episode": episode,
-                          "running_reward": self.running_reward,
-                          "running_last_10_r": self.running_last_10_r
-                          if not isinstance(self.running_last_10_r, np.ndarray) else self.running_last_10_r[0],
-                          "running_training_logs": list(self.running_training_logs)
-                          }
-        torch.save({"online_model_state_dict": self.brain.model.state_dict()},
-                   "weights/" + self.log_dir + "/params.pth")
+        torch.save({"online_model_state_dict": self.brain.model.state_dict(),
+                    "iteration": iteration,
+                    "episode": episode,
+                    "running_reward": self.running_reward,
+                    "running_last_10_r": self.running_last_10_r
+                    if not isinstance(self.running_last_10_r, np.ndarray) else self.running_last_10_r[0],
+                    "running_training_logs": list(self.running_training_logs)
+                    },
+                   "weights/" + self.log_dir + "/params.pth"
+                   )
 
     # endregion
 
