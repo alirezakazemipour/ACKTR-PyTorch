@@ -26,13 +26,20 @@ def get_params():
 
     # region default parameters
     default_params = {"state_shape": (4, 84, 84),
-                      "lr": 2.5e-4,
-                      "alpha": 0.6,
-                      "batch_size": 80,
+                      "lr": 0.25,
+                      "kfac_configs": dict(lr=0.25,
+                                           damping=1e-2,
+                                           momuntum=0.9,
+                                           epsilon=0.95,
+                                           Ts=1,
+                                           Tf=10,
+                                           max_lr=1,
+                                           trust_region=0.001
+                                           ),
+                      "batch_size": 640,
                       "gamma": 0.99,
                       "ent_coeff": 0.01,  # noqa
                       "critic_coeff": 0.5,  # noqa
-                      "max_grad_norm": 0.5,
                       "n_workers": os.cpu_count() if parser_params.num_worker == -1 else parser_params.num_worker,
                       "seed": 123
                       }

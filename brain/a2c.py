@@ -13,7 +13,17 @@ class Brain:
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         self.model = CNNModel(self.config["state_shape"], self.config["n_actions"]).to(self.device)
-        self.optimizer = KFAC(self.model, lr=self.config["lr"])
+        self.optimizer = KFAC(self.model,
+                              lr=self.config["kfac_configs"]["lr"],
+                              weight_decay=self.config["kfac_configs"]["weight_decay"],
+                              damping=self.config["kfac_configs"]["damping"],
+                              momentum=self.config["kfac_configs"]["momentum"],
+                              eps=self.config["kfac_configs"]["epsilon"],
+                              Ts=self.config["kfac_configs"]["Ts"],  # noqa
+                              Tf=self.config["kfac_configs"]["Tf"],  # noqa
+                              max_lr=self.config["kfac_configs"]["max_lr"],
+                              trust_region=self.config["kfac_configs"]["trust_region"]
+                              )
         self.mse_loss = torch.nn.MSELoss()
 
     def get_actions_and_values(self, state, batch=False):
@@ -33,7 +43,7 @@ class Brain:
         states = from_numpy(states).to(self.device)
         actions = from_numpy(actions).to(self.device)
         advs = from_numpy(advs).to(self.device)
-        values_target = from_numpy(values).to(self.device)
+        values_target = from_numpy(returns).to(self.device)
 
         dist, values_pred = self.model(states)
         ent = dist.entropy().mean()
