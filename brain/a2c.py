@@ -87,5 +87,5 @@ class Brain:
         self.model.load_state_dict(checkpoint["policy_state_dict"])
         self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-    def set_to_eval_mode(self):
+    def prepare_to_play(self):
         self.model.eval()

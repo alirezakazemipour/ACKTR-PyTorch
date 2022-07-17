@@ -83,8 +83,7 @@ if __name__ == '__main__':
             logger.log_iteration(iteration, training_logs)
 
     else:
-        # logger = Logger(brain, experiment=None, **params)
-        # logger.load_weights()
-        # play = Play(params["env_name"], brain)
-        # play.evaluate()
-        raise NotImplementedError
+        logger = Logger(brain, **params)
+        logger.load_weights()
+        play = Evaluator(brain, 1, **params)
+        play.evaluate()
