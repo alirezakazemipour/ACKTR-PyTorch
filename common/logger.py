@@ -4,7 +4,6 @@ import os
 import datetime
 import glob
 from collections import deque
-import json
 import psutil
 import sys
 import math
@@ -41,7 +40,7 @@ class Logger:
                    name=self.log_dir
                    )
         # wandb.watch(agent.online_model)
-        if not self.config["do_test"]:
+        if not self.config["do_test"] and self.config["train_from_scratch"]:
             self.create_wights_folder(self.log_dir)
 
         self.exp_avg = lambda x, y: 0.99 * x + 0.01 * y if (y != 0).all() else y
@@ -125,7 +124,8 @@ class Logger:
 
     # region save_params
     def save_params(self, episode, iteration):
-        torch.save({"online_model_state_dict": self.brain.model.state_dict(),
+        torch.save({"model_state_dict": self.brain.model.state_dict(),
+                    "optimizer_state_dict": self.brain.optimizer.state_dict(),
                     "iteration": iteration,
                     "episode": episode,
                     "running_reward": self.running_reward,
@@ -140,16 +140,17 @@ class Logger:
 
     # region load_weights
     def load_weights(self):
-        model_dir = glob.glob("Models/*")
+        model_dir = glob.glob("weights/*")
         model_dir.sort()
         self.log_dir = model_dir[-1].split(os.sep)[-1]
+        checkpoint = torch.load("weights/" + self.log_dir + "/params.pth")
 
-        self.brain.policy.load_weights(model_dir[-1] + "/weights.h5")
-        with open(model_dir[-1] + "/stats.json", "r") as f:
-            stats = json.load(f)
-        self.running_last_10_r = stats["running_last_10_r"]
-        self.running_training_logs = np.asarray(stats["running_training_logs"])
-        self.running_reward = stats["running_reward"]
+        self.brain.model.load_state_dict(checkpoint["model_state_dict"])
+        self.brain.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-        return stats["iteration"], stats["episode"]
+        self.running_last_10_r = checkpoint["running_last_10_r"]
+        self.running_training_logs = np.asarray(checkpoint["running_training_logs"])
+        self.running_reward = checkpoint["running_reward"]
+
+        return checkpoint["iteration"], checkpoint["episode"]
     # endregion

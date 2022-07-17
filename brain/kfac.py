@@ -141,6 +141,36 @@ class KFAC(optim.Optimizer):
         self.optim.step()
         self._k += 1
 
+    def state_dict(self) -> dict:
+        return dict(sgd_state_dict=self.optim.state_dict(),
+                    k=self._k,
+                    aa_hat=self._aa_hat,
+                    gg_hat=self._gg_hat,
+                    eig_a=self._eig_a,
+                    eig_g=self._eig_g,
+                    Q_a=self._Q_a,
+                    Q_g=self._Q_g
+                    )
+
+    def load_state_dict(self, state_dict: dict) -> None:
+        self.optim.load_state_dict(state_dict["sgd_state_dict"])
+        self._k = state_dict["k"]
+        aa_hat = state_dict["aa_hat"].values()
+        # gard values are stored in the backward pass so last values correspond to first layers
+        gg_hat = reversed(state_dict["gg_hat"].values())
+        eig_a = state_dict["eig_a"].values()
+        eig_g = state_dict["eig_g"].values()
+        Q_a = state_dict["Q_a"].values()
+        Q_g = state_dict["Q_g"].values()
+
+        for a, g, ea, eg, q_a, q_g, l in zip(aa_hat, gg_hat, eig_a, eig_g, Q_a, Q_g, self._trainable_layers):
+            self._aa_hat[l] = a
+            self._gg_hat[l] = g
+            self._eig_a[l] = ea
+            self._eig_g[l] = eg
+            self._Q_a[l] = q_a
+            self._Q_g[l] = q_g
+
 
 def img2col(tensor,
             kernel_size: tuple,
