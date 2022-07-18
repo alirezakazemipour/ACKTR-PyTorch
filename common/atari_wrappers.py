@@ -24,9 +24,8 @@ def make_atari(env_name: str,
         env = ClipRewardEnv(env)
     env = StackFrameEnv(env)
 
-    env.seed(seed)
-    env.observation_space.np_random.seed(seed)
-    env.action_space.np_random.seed(seed)
+    env.observation_space.seed(seed)
+    env.action_space.seed(seed)
     return env
 
 

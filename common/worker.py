@@ -16,7 +16,7 @@ class Worker(Process):
     def run(self):
         self.env = make_atari(self.config["env_name"], episodic_life=False, seed=self.config["seed"] + self.id)
         print(f"W{self.id}: started.")
-        state = self.env.reset()
+        state = self.env.reset(seed=self.config["seed"] + self.id)
         while True:
             self.conn.send(state)
             action, value = self.conn.recv()

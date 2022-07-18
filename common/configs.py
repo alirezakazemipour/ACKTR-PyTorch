@@ -21,6 +21,7 @@ def get_params():
                         help="The flag determines whether to render each agent or not.")
     parser.add_argument("--train_from_scratch", action="store_true",
                         help="The flag determines whether to train from scratch or continue previous tries.")
+    parser.add_argument("--seed", default=132, type=int, help="The random seed.")
 
     parser_params = parser.parse_args()
 
@@ -42,7 +43,6 @@ def get_params():
                       "ent_coeff": 0.01,  # noqa
                       "critic_coeff": 0.5,  # noqa
                       "n_workers": os.cpu_count() if parser_params.num_worker == -1 else parser_params.num_worker,
-                      "seed": 123
                       }
 
     # endregion
