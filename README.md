@@ -1,3 +1,5 @@
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+
 # ACKTR-PyTorch
 
 ## Demo
@@ -30,6 +32,12 @@
 - torch == 1.12.0
 - tqdm == 4.64.0
 - wandb == 0.12.21
+
+
+## References
+1. [_Optimizing Neural Networks with Kronecker-factored Approximate Curvature_, Martens, et al., 2015](https://arxiv.org/abs/1503.05671)
+2. [_A Kronecker-factored approximate Fisher matrix for convolution layers_, Martens et al., 2016](https://arxiv.org/abs/1602.01407)
+3. [_Scalable trust-region method for deep reinforcement learning using Kronecker-factored approximation_, Wu et al., 2017](https://arxiv.org/abs/1708.05144)
 
 ## Acknowledgement
 Following repositories were great guides to build up the current repository. Big thanks to them for their works and you can find them very handy if you're interested in more advanced implementations of KFAC or ACKTR:
