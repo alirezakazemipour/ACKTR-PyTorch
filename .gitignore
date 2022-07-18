@@ -128,12 +128,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.idea
-api_key.wandb
-wandb
-weights
-*.png
-*.mp4
-*.mkv
-*.avi
-vid
