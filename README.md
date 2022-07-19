@@ -11,12 +11,13 @@ Natural Gradients is the popular and strong method of choice whenever second ord
 KFAC optimizer introduced approximations to the Fisher information Matrix that made it capable to be used in the regime of deep neural nets. ACKTR took advantage of this possibility and managed to train an A2C agent (the synchronous version of A3C) and showed both improvements in performance and more importantly the sample efficiency that was promised in the first place.
 
 ## Demo
-<p align="center">
-  <img src="results/seaquest.gif" height=250>
-</p>  
+Seaquest | MsPacman
+:------------:|:---------------:
+![](results/seaquest.gif)|![](results/pacman.gif)
 
 ## Results
 > Environment: SeaquestNoFrameskip-v4
+> Number of workers: 8
 
 <p align="center">
   <img src="results/merged1.png" >

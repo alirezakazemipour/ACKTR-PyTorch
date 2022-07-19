@@ -2,6 +2,7 @@ import os
 import numpy as np
 import random
 import torch
+import wandb
 
 
 def set_random_seeds(seed):
@@ -17,6 +18,11 @@ def init_wandb(online_mode=False):
             os.environ["WANDB_API_KEY"] = f.read()
             if not online_mode:
                 os.environ["WANDB_MODE"] = "offline"
+    else:
+        if not online_mode:
+            os.environ["WANDB_MODE"] = "offline"
+        key = input("Please enter your wandb api key then press enter:")
+        wandb.login(key=key)
 
 
 # Calculates if value function is a good predictor of the returns (ev > 1)

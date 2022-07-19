@@ -34,14 +34,14 @@ class Logger:
         print("params:", self.config)
         sys.stdout.write("\033[0;0m")  # Reset code
 
-        wandb.init(project="ACKTR",  # noqa
-                   config=config,
-                   job_type="train",
-                   name=self.log_dir
-                   )
         # wandb.watch(agent.online_model)
         if not self.config["do_test"] and self.config["train_from_scratch"]:
             self.create_wights_folder(self.log_dir)
+            wandb.init(project="ACKTR",  # noqa
+                       config=config,
+                       job_type="train",
+                       name=self.log_dir
+                       )
 
         self.exp_avg = lambda x, y: 0.99 * x + 0.01 * y if (y != 0).all() else y
 
@@ -152,5 +152,11 @@ class Logger:
         self.running_training_logs = np.asarray(checkpoint["running_training_logs"])
         self.running_reward = checkpoint["running_reward"]
 
+        if not self.config["do_test"] and not self.config["train_from_scratch"]:
+            wandb.init(project="ACKTR",  # noqa
+                       config=self.config,
+                       job_type="train",
+                       name=self.log_dir
+                       )
         return checkpoint["iteration"], checkpoint["episode"]
     # endregion
