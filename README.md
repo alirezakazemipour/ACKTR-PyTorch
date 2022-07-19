@@ -8,7 +8,7 @@ Natural Gradients is the popular and strong method of choice whenever second ord
   <img src="misc/eq0.png">
 </p>  
 
-KFAC optimizer introduced approximations to the Fisher information Matrix that made it capable to be used in the regime of deep neural nets. ACKTR took advantage of this possibility and managed to train an A2C agent (the synchronous version of A3C) and showed both improvements in performance and more importantly the sample efficiency that was promised in the first palce.
+KFAC optimizer introduced approximations to the Fisher information Matrix that made it capable to be used in the regime of deep neural nets. ACKTR took advantage of this possibility and managed to train an A2C agent (the synchronous version of A3C) and showed both improvements in performance and more importantly the sample efficiency that was promised in the first place.
 
 ## Demo
 Seaquest | MsPacman
