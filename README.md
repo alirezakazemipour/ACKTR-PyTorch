@@ -24,7 +24,7 @@
 </p>  
 
 ## What's different in this repository
-If you take a look at other popular repositories that I have mentioned in the [acknowledgment](#acknowledgment) section as well,  you will find that in order to compute **Γ** and **Ω** matrices for convolutional layers, they have divided the by the spatial size of the convolution operator.
+If you take a look at other popular repositories that I have mentioned in the [acknowledgement](#acknowledgement) section as well,  you will find that in order to compute **Γ** and **Ω** matrices for convolutional layers, they have divided the by the spatial size of the convolution operator.
 To be concrete, they all have done the following division and multiplication that I have brought form  [baselines](https://github.com/openai/baselines) and [KFAC-Pytorch](https://github.com/alecwangcq/KFAC-Pytorch)  as the code references that are commonly refered to:
 
 >[baselines](https://github.com/openai/baselines/blob/ea25b9e8b234e6ee1bca43083f8f3cf974143998/baselines/acktr/kfac.py#L374) when computing Ω:
