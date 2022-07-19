@@ -1,6 +1,14 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 
 # ACKTR-PyTorch
+>This repository is a PyTorch implementation of the _Scalable trust-region method for deep reinforcement learning using Kronecker-factored approximation_ paper also known as ACKTR.
+
+Natural Gradients is the popular and strong method of choice whenever second order optimization is considered. But its computation involves inverting the Fisher Information Matrix that for deep neural networks will have astronomical dimensions thus, impractical to use.  
+<p align="center">
+  <img src="misc/eq0.png">
+</p>  
+
+KFAC optimizer introduced approximations to the Fisher information Matrix that made it capable to be used in the regime of deep neural nets. ACKTR took advantage of this possibility and managed to train an A2C agent (the synchronous version of A3C) and showed both improvements in performance and more importantly the sample efficiency that was promised in the first palce.
 
 ## Demo
 <p align="center">
