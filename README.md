@@ -71,10 +71,11 @@ The [original paper](https://arxiv.org/abs/1602.01407) at page 11 has presented 
 <p align="center">
   <img src="misc/eq1.png" >
 </p>  
-While what those codes are computing is equal to the followings:
+While, what those codes are computing is equal to the followings:
 <p align="center">
   <img src="misc/eq2.png" >
 </p>  
+
 ### SO:
 I stuck with the paper and avoid such unexplained operations and instaed did the followings: 
 >[brain/kfac.py](https://github.com/alirezakazemipour/ACKTR-PyTorch/blob/d7e5b23095ede10c7241a46015cb9370b6bd5349/brain/kfac.py#L50) when computing Ω:
