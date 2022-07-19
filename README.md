@@ -159,33 +159,31 @@ options:
 ###  Considerations
 - You can put your _wandb API key_ in a file named `api_key.wandb` at the root directory of the project and the code will automatically read the key and as a result, there will be no need to insert your wandb credentials each time:
 ```python
-<p align="center">
-  <img src="misc/eq1.png" >
-</p>  def init_wandb(online_mode=False):
-    if os.path.exists("api_key.wandb"):
-        with open("api_key.wandb", 'r') as f:
-            os.environ["WANDB_API_KEY"] = f.read()
-            if not online_mode:
-                os.environ["WANDB_MODE"] = "offline"
+def init_wandb(online_mode=False):
+   if os.path.exists("api_key.wandb"):
+       with open("api_key.wandb", 'r') as f:
+           os.environ["WANDB_API_KEY"] = f.read()
+           if not online_mode:
+               os.environ["WANDB_MODE"] = "offline"
 ```
 - At the time of testing, the code by default uses the weights of the latest run available in _`weights`_ folder because each subdirectory is named by the time and the date (e.g. 2022-07-13-06-51-32 indicating 7/13/2022, 6:51:32) that the code was executed correspondingly so, please bear in mind to put your desired `*.pth` file in the appropriate subdirectory inside the _`weights`_ directory! 👇
 > common/logger.py:
 ```python
 def load_weights(self):
-model_dir = glob.glob("weights/*")
-model_dir.sort()
-# model_dir[-1] -> means the latest run!
-self.log_dir = model_dir[-1].split(os.sep)[-1]
-checkpoint = torch.load("weights/" + self.log_dir + "/params.pth")
+  model_dir = glob.glob("weights/*")
+  model_dir.sort()
+  # model_dir[-1] -> means the latest run!
+  self.log_dir = model_dir[-1].split(os.sep)[-1]
+  checkpoint = torch.load("weights/" + self.log_dir + "/params.pth")
 
-self.brain.model.load_state_dict(checkpoint["model_state_dict"])
-self.brain.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+  self.brain.model.load_state_dict(checkpoint["model_state_dict"])
+  self.brain.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-self.running_last_10_r = checkpoint["running_last_10_r"]
-self.running_training_logs = 	np.asarray(checkpoint["running_training_logs"])
-self.running_reward = checkpoint["running_reward"]
+  self.running_last_10_r = checkpoint["running_last_10_r"]
+  self.running_training_logs = 	np.asarray(checkpoint["running_training_logs"])
+  self.running_reward = checkpoint["running_reward"]
 
-return checkpoint["iteration"], checkpoint["episode"]
+  return checkpoint["iteration"], checkpoint["episode"]
 ```
 
 ## References
