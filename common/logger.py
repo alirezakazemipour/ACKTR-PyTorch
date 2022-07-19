@@ -142,7 +142,6 @@ class Logger:
     def load_weights(self):
         model_dir = glob.glob("weights/*")
         model_dir.sort()
-        # model_dir[-1] -> means the latest run!
         self.log_dir = model_dir[-1].split(os.sep)[-1]
         checkpoint = torch.load("weights/" + self.log_dir + "/params.pth")
 
