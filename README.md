@@ -86,7 +86,7 @@ While, what those codes are computing is equal to the followings:
 </p>  
 
 ### SO:
-I stuck with the paper and avoid such unexplained operations and instaed did the followings: 
+I stuck with the paper and avoid such unexplained operations and instead did the followings: 
 >[brain/kfac.py](https://github.com/alirezakazemipour/ACKTR-PyTorch/blob/d7e5b23095ede10c7241a46015cb9370b6bd5349/brain/kfac.py#L50) when computing Ω:
 ```python
 def _save_aa(self, layer, layer_input):
