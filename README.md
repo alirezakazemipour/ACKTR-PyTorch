@@ -3,7 +3,7 @@
 # ACKTR-PyTorch
 >This repository is a PyTorch implementation of the _Scalable trust-region method for deep reinforcement learning using Kronecker-factored approximation_ paper also known as ACKTR.
 
-Natural Gradients is the popular and strong method of choice whenever second order optimization is considered. But its computation involves inverting the Fisher Information Matrix that for deep neural networks will have astronomical dimensions thus, impractical to use.  
+Natural Gradients is the popular and powerful method of choice whenever second order optimization is considered. But its computation involves inverting the Fisher Information Matrix that for deep neural networks will have astronomical dimensions thus, impractical to use.  
 <p align="center">
   <img src="misc/eq0.png">
 </p>  
