@@ -41,6 +41,7 @@ if __name__ == '__main__':
         total_dones = np.zeros(rollout_base_shape, dtype=bool)
         total_values = np.zeros(rollout_base_shape, dtype=np.float32)
         next_states = np.zeros((rollout_base_shape[0],) + params["state_shape"], dtype=np.uint8)
+        infos = {}
 
         logger.on()
         episode_reward = 0
@@ -58,14 +59,14 @@ if __name__ == '__main__':
                     parent.send((int(a), v))
 
                 for worker_id, parent in enumerate(parents):
-                    s_, r, d = parent.recv()
+                    s_, r, d, infos[worker_id] = parent.recv()
                     total_rewards[worker_id, t] = r
                     total_dones[worker_id, t] = d
                     next_states[worker_id] = s_
 
                 episode_reward += total_rewards[0, t]
                 episode_length += 1
-                if total_dones[0, t]:
+                if total_dones[0, t] and infos[0]["lives"] == 0:
                     episode += 1
                     logger.log_episode(episode, episode_reward, episode_length)
                     episode_reward = 0
